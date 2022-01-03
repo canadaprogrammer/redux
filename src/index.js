@@ -1,49 +1,61 @@
+import { createStore } from 'redux';
+
 const form = document.querySelector('form');
 const input = document.querySelector('input');
 const ul = document.querySelector('ul');
 
-const todos = [];
+const ADD = 'ADD';
+const DELETE = 'DELETE';
 
-const updateTodos = () => {
+const addTodo = (text) => ({
+  type: ADD,
+  text,
+});
+
+const delTodo = (id) => ({
+  type: DELETE,
+  id,
+});
+
+const reducer = (state = [], action) => {
+  switch (action.type) {
+    case ADD:
+      const newTodo = { text: action.text, id: Date.now() };
+      return [newTodo, ...state];
+    case DELETE:
+      return state.filter((todo) => todo.id !== action.id);
+    default:
+      return state;
+  }
+};
+
+const store = createStore(reducer);
+
+const dispatchAddTodo = (text) => store.dispatch(addTodo(text));
+const dispatchDelTodo = (id) => store.dispatch(delTodo(id));
+
+const updateList = () => {
+  const todos = store.getState();
   ul.innerHTML = '';
   todos.forEach((todo) => {
-    const list = document.createElement('li');
-    const button = document.createElement('button');
-    button.addEventListener('click', () => deleteTodo(todo.id));
-    button.innerText = 'Del';
-    list.id = todo.id;
-    list.innerText = todo.text;
-    list.append(button);
-    ul.append(list);
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.innerText = 'Del';
+    btn.addEventListener('click', () => dispatchDelTodo(todo.id));
+    li.id = todo.id;
+    li.innerText = todo.text;
+    li.appendChild(btn);
+    ul.appendChild(li);
   });
 };
-const deleteTodo = (id) => {
-  const index = todos.findIndex((todo) => todo.id === id);
-  if (index !== -1) {
-    todos.splice(index, 1);
-  }
-  updateTodos();
-};
-const createTodo = (toDo) => {
-  const todo = { text: toDo, id: Date.now() };
-  todos.unshift(todo);
-  updateTodos();
-};
+store.subscribe(updateList);
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
-  if (input.value !== '') {
+  if (input.value && input.value !== '') {
     const todo = input.value;
     input.value = '';
     input.focus();
-    createTodo(todo);
+    dispatchAddTodo(todo);
   }
-});
-
-window.addEventListener('load', () => {
-  todos.forEach((todo) => {
-    const list = document.createElement('li');
-    list.innerText = todo;
-    ul.append(list);
-  });
 });
