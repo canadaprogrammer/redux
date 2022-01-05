@@ -566,6 +566,45 @@
     export default connect(null, mapDispatchToProps)(Todo);
     ```
 
+### Detail Page
+
+- On `Todo.js`
+
+  - ```jsx
+    import { Link } from 'react-router-dom';
+
+    function Todo({ text, onClick, id }) {
+      return (
+        <li>
+          <Link to={`/${id}`}>{text}</Link>
+    ```
+
+- On `Detail.js`
+
+  - ```jsx
+    import React from 'react';
+    import { connect } from 'react-redux';
+    import { useParams } from 'react-router-dom';
+
+    function Detail({ todos }) {
+      const params = useParams();
+      const todo = todos?.find((toDo) => toDo.id === parseInt(params.id));
+      return (
+        <>
+          <h1>{todo?.text}</h1>
+          <h3>Created At: {todo?.id}</h3>
+        </>
+      );
+    }
+
+    function mapStateToProps(state) {
+      return {
+        todos: state,
+      };
+    }
+    export default connect(mapStateToProps)(Detail);
+    ```
+
 ## Notes
 
 ### `Element.append()` vs `Node.appendChild()`
