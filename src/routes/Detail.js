@@ -8,7 +8,7 @@ function Detail({ todos }) {
   return (
     <>
       <h1>{todo?.text}</h1>
-      <h3>Created At: {todo?.id}</h3>
+      <h3>Created At: {new Date(todo?.id).toUTCString()}</h3>
     </>
   );
 }

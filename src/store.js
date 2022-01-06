@@ -19,8 +19,29 @@ const reducer = (state = [], action) => {
       return state;
   }
 };
+function saveToLocalStorage(state) {
+  try {
+    const localState = JSON.stringify(state);
+    localStorage.setItem('persistantState', localState);
+  } catch (e) {
+    console.warn(e);
+  }
+}
+function loadFromLocalStorage() {
+  try {
+    const localState = localStorage.getItem('persistantState');
+    if (localState === null) {
+      return undefined;
+    }
+    return JSON.parse(localState);
+  } catch (e) {
+    console.warn(e);
+    return undefined;
+  }
+}
+const store = createStore(reducer, loadFromLocalStorage());
 
-const store = createStore(reducer);
+store.subscribe(() => saveToLocalStorage(store.getState()));
 
 export const actionsCreators = {
   addTodo,

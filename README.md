@@ -551,10 +551,18 @@
 
     function Todo({ text, onClick }) {
       return (
-        <li>
-          {text}
-          <button onClick={onClick}>Del</button>
-        </li>
+        <>
+          <li>
+            <button onClick={onClick}>Del</button>
+          </li>
+          <style jsx>
+            {`
+              button {
+                margin-left: 1rem;
+              }
+            `}
+          </style>
+        </>
       );
     }
 
@@ -587,12 +595,11 @@
     import { useParams } from 'react-router-dom';
 
     function Detail({ todos }) {
-      const params = useParams();
       const todo = todos?.find((toDo) => toDo.id === parseInt(params.id));
       return (
         <>
           <h1>{todo?.text}</h1>
-          <h3>Created At: {todo?.id}</h3>
+          <h3>Created At: {new Date(todo?.id).toUTCString()}</h3>
         </>
       );
     }
@@ -603,6 +610,36 @@
       };
     }
     export default connect(mapStateToProps)(Detail);
+    ```
+
+## LocalStorage
+
+- On `store.js`
+
+  - ```jsx
+    function saveToLocalStorage(state) {
+      try {
+        const localState = JSON.stringify(state);
+        localStorage.setItem('persistantState', localState);
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+    function loadFromLocalStorage() {
+      try {
+        const localState = localStorage.getItem('persistantState');
+        if (localState === null) {
+          return undefined;
+        }
+        return JSON.parse(localState);
+      } catch (e) {
+        console.warn(e);
+        return undefined;
+      }
+    }
+    const store = createStore(reducer, loadFromLocalStorage());
+
+    store.subscribe(() => saveToLocalStorage(store.getState()));
     ```
 
 ## Notes
