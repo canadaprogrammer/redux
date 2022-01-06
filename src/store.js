@@ -9,27 +9,32 @@ const addTodo = (text) => {
 const delTodo = (id) => {
   return { type: DEL, id: parseInt(id) };
 };
+
+const saveToLocalStorage = (todos) => {
+  try {
+    localStorage.setItem('toDos', JSON.stringify(todos));
+  } catch (e) {
+    console.warn(e);
+  }
+};
+
 const reducer = (state = [], action) => {
   switch (action.type) {
     case ADD:
-      return [{ text: action.text, id: Date.now() }, ...state];
+      const addTodos = [{ text: action.text, id: Date.now() }, ...state];
+      saveToLocalStorage(addTodos);
+      return addTodos;
     case DEL:
-      return state.filter((s) => s.id !== action.id);
+      const delTodos = state.filter((s) => s.id !== action.id);
+      saveToLocalStorage(delTodos);
+      return delTodos;
     default:
       return state;
   }
 };
-function saveToLocalStorage(state) {
+const loadFromLocalStorage = () => {
   try {
-    const localState = JSON.stringify(state);
-    localStorage.setItem('persistantState', localState);
-  } catch (e) {
-    console.warn(e);
-  }
-}
-function loadFromLocalStorage() {
-  try {
-    const localState = localStorage.getItem('persistantState');
+    const localState = localStorage.getItem('toDos');
     if (localState === null) {
       return undefined;
     }
@@ -38,10 +43,8 @@ function loadFromLocalStorage() {
     console.warn(e);
     return undefined;
   }
-}
+};
 const store = createStore(reducer, loadFromLocalStorage());
-
-store.subscribe(() => saveToLocalStorage(store.getState()));
 
 export const actionsCreators = {
   addTodo,

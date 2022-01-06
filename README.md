@@ -617,17 +617,32 @@
 - On `store.js`
 
   - ```jsx
-    function saveToLocalStorage(state) {
+    const saveToLocalStorage = (todos) => {
       try {
-        const localState = JSON.stringify(state);
-        localStorage.setItem('persistantState', localState);
+        localStorage.setItem('toDos', JSON.stringify(todos));
       } catch (e) {
         console.warn(e);
       }
-    }
-    function loadFromLocalStorage() {
+    };
+
+    const reducer = (state = [], action) => {
+      switch (action.type) {
+        case ADD:
+          const addTodos = [{ text: action.text, id: Date.now() }, ...state];
+          saveToLocalStorage(addTodos);
+          return addTodos;
+        case DEL:
+          const delTodos = state.filter((s) => s.id !== action.id);
+          saveToLocalStorage(delTodos);
+          return delTodos;
+        default:
+          return state;
+      }
+    };
+
+    const loadFromLocalStorage = () => {
       try {
-        const localState = localStorage.getItem('persistantState');
+        const localState = localStorage.getItem('toDos');
         if (localState === null) {
           return undefined;
         }
@@ -636,10 +651,9 @@
         console.warn(e);
         return undefined;
       }
-    }
-    const store = createStore(reducer, loadFromLocalStorage());
+    };
 
-    store.subscribe(() => saveToLocalStorage(store.getState()));
+    const store = createStore(reducer, loadFromLocalStorage());
     ```
 
 ## Notes
