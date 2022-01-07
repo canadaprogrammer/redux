@@ -10,7 +10,7 @@ function Todo({ text, onClick, id }) {
         <Link to={`/${id}`}>{text}</Link>
         <button onClick={onClick}>Del</button>
       </li>
-      <style jsx>
+      <style jsx='true'>
         {`
           button {
             margin-left: 1rem;

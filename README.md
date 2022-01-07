@@ -555,7 +555,7 @@
           <li>
             <button onClick={onClick}>Del</button>
           </li>
-          <style jsx>
+          <style jsx='true'>
             {`
               button {
                 margin-left: 1rem;
@@ -656,6 +656,51 @@
     const store = createStore(reducer, loadFromLocalStorage());
     ```
 
+## Redux Toolkit
+
+- `npm i @reduxjs/toolkit`
+
+### `createAction()`
+
+- It generates an action creator function for the given action type string. The function itself has `toString()` defined, so that it can be used in place of the type constant.
+
+- `const fn = createAction(type);`
+
+- Get `type` by `fn.type`
+
+- get `arg` of fn(arg) by `action.payload`
+
+- On `store.js`
+
+  - ```jsx
+    import { createAction } from '@reduxjs/toolkit';
+
+    // const ADD = 'ADD';
+    // const DEL = 'DEL';
+
+    // const addTodo = (text) => {
+    //   return { type: ADD, text };
+    // };
+    // const delTodo = (id) => {
+    //   return { type: DEL, id: parseInt(id) };
+    // };
+
+    const addTodo = createAction('ADD');
+    const delTodo = createAction('DEL');
+
+    const reducer = (state = [], action) => {
+      switch (action.type) {
+        // case ADD:
+        case addTodo.type:
+          // const addTodos = [{ text: action.text, id: Date.now() }, ...state];
+          const addTodos = [{ text: action.payload, id: Date.now() }, ...state];
+          saveToLocalStorage(addTodos);
+          return addTodos;
+        case delTodo.type:
+          // const delTodos = state.filter((s) => s.id !== action.id);
+          const delTodos = state.filter((s) => s.id !== action.payload);
+    ```
+
 ## Notes
 
 ### `Element.append()` vs `Node.appendChild()`
@@ -686,3 +731,17 @@
       ul.append(A, B); // appended both
       ul.appendChild(A, B); // appended only A
       ```
+
+### Solution: react-scripts: v4.0.3, process is not defined
+
+- On `package.json`, add `"react-error-overlay": "6.0.9"`
+
+  - ```json
+    "resolutions": {
+      "react-error-overlay": "6.0.9"
+    }
+    ```
+
+- Remove `node_modules` and `package-lock.json`
+
+- `npm install`

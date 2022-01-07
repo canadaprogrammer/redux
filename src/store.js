@@ -1,14 +1,17 @@
 import { createStore } from 'redux';
+import { createAction } from '@reduxjs/toolkit';
 
-const ADD = 'ADD';
-const DEL = 'DEL';
+// const ADD = 'ADD';
+// const DEL = 'DEL';
 
-const addTodo = (text) => {
-  return { type: ADD, text };
-};
-const delTodo = (id) => {
-  return { type: DEL, id: parseInt(id) };
-};
+// const addTodo = (text) => {
+//   return { type: ADD, text };
+// };
+// const delTodo = (id) => {
+//   return { type: DEL, id: parseInt(id) };
+// };
+const addTodo = createAction('ADD');
+const delTodo = createAction('DEL');
 
 const saveToLocalStorage = (todos) => {
   try {
@@ -20,12 +23,15 @@ const saveToLocalStorage = (todos) => {
 
 const reducer = (state = [], action) => {
   switch (action.type) {
-    case ADD:
-      const addTodos = [{ text: action.text, id: Date.now() }, ...state];
+    // case ADD:
+    case addTodo.type:
+      // const addTodos = [{ text: action.text, id: Date.now() }, ...state];
+      const addTodos = [{ text: action.payload, id: Date.now() }, ...state];
       saveToLocalStorage(addTodos);
       return addTodos;
-    case DEL:
-      const delTodos = state.filter((s) => s.id !== action.id);
+    case delTodo.type:
+      // const delTodos = state.filter((s) => s.id !== action.id);
+      const delTodos = state.filter((s) => s.id !== action.payload);
       saveToLocalStorage(delTodos);
       return delTodos;
     default:
