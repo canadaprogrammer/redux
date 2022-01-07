@@ -4,6 +4,7 @@ import { actionsCreators } from '../store';
 import Todo from '../components/Todo';
 
 function Home({ toDos, addTodo }) {
+  console.log(toDos);
   const [text, setText] = useState('');
   function onChange(e) {
     setText(e.target.value);
@@ -21,7 +22,7 @@ function Home({ toDos, addTodo }) {
         <button>Add</button>
       </form>
       <ul>
-        {toDos.map((todo) => (
+        {toDos?.map((todo) => (
           <Todo {...todo} key={todo.id} />
         ))}
       </ul>

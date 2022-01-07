@@ -1,15 +1,6 @@
 import { createStore } from 'redux';
-import { createAction } from '@reduxjs/toolkit';
+import { createAction, createReducer } from '@reduxjs/toolkit';
 
-// const ADD = 'ADD';
-// const DEL = 'DEL';
-
-// const addTodo = (text) => {
-//   return { type: ADD, text };
-// };
-// const delTodo = (id) => {
-//   return { type: DEL, id: parseInt(id) };
-// };
 const addTodo = createAction('ADD');
 const delTodo = createAction('DEL');
 
@@ -18,26 +9,22 @@ const saveToLocalStorage = (todos) => {
     localStorage.setItem('toDos', JSON.stringify(todos));
   } catch (e) {
     console.warn(e);
+    return null;
   }
 };
 
-const reducer = (state = [], action) => {
-  switch (action.type) {
-    // case ADD:
-    case addTodo.type:
-      // const addTodos = [{ text: action.text, id: Date.now() }, ...state];
-      const addTodos = [{ text: action.payload, id: Date.now() }, ...state];
-      saveToLocalStorage(addTodos);
-      return addTodos;
-    case delTodo.type:
-      // const delTodos = state.filter((s) => s.id !== action.id);
-      const delTodos = state.filter((s) => s.id !== action.payload);
-      saveToLocalStorage(delTodos);
-      return delTodos;
-    default:
-      return state;
-  }
-};
+const reducer = createReducer([], {
+  [addTodo]: (state, action) => {
+    state.unshift({ text: action.payload, id: Date.now() });
+    saveToLocalStorage(state);
+  },
+  [delTodo]: (state, action) => {
+    const newState = state.filter((s) => s.id !== action.payload);
+    saveToLocalStorage(newState);
+    return newState;
+  },
+});
+
 const loadFromLocalStorage = () => {
   try {
     const localState = localStorage.getItem('toDos');

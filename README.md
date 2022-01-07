@@ -664,11 +664,45 @@
 
 - It generates an action creator function for the given action type string. The function itself has `toString()` defined, so that it can be used in place of the type constant.
 
-- `const fn = createAction(type);`
+- `function crateAction(type, prepareAction?)`
 
-- Get `type` by `fn.type`
+- ```js
+  const counter = createAction('counter');
+  let action = counter(); // { type: 'counter' }
+  action = counter(3); // { type: 'counter', payload: 3 }
+  ```
 
-- get `arg` of fn(arg) by `action.payload`
+- Because of their `toString()` override, action creators returned by `createAction()` can be used directly as keys for the case reducers passed to `createReducer()`.
+
+- By default, the generated action creators accept a single argument, which becomes `action.payload`. This requires the caller to construct the entire payload correctly and pass it in.
+
+- An optional second argument: a `prepareAction` that will be used to construct the payload value.
+
+  - ```js
+    import { createAction, nanoid } from '@reduxjs/toolkit';
+
+    const addTodo = createAction('todos/add', function prepare(text) {
+      return {
+        payload: {
+          text,
+          id: nanoid(),
+          createdAt: new Date().toISOString(),
+        },
+      };
+    });
+
+    console.log(addTodo('Write more docs'));
+    /**
+     * {
+     *   type: 'todos/add',
+     *   payload: {
+     *     text: 'Write more docs',
+     *     id: '4AJvwMSWEHCchcWYga3dj',
+     *     createdAt: '2019-10-03T07:53:36.581Z'
+     *   }
+     * }
+     **/
+    ```
 
 - On `store.js`
 
@@ -699,6 +733,48 @@
         case delTodo.type:
           // const delTodos = state.filter((s) => s.id !== action.id);
           const delTodos = state.filter((s) => s.id !== action.payload);
+    ```
+
+### `createReducer()`
+
+- It uses `Immer` internally to drastically simplify immutable update logic by writing "mutative" code in your reducers, and supports directly mapping specific action types to case reducer functions that will update the state when that action is dispatched.
+
+- Writing "mutating" reducers simplifies the code. However, the use of Immer does add some "magic", and Immer has its own nuances in behavior. Most importantly, **you need to ensure that your either mutate the `state` argument or return a new state, but not both.**
+
+- On `store.js`
+
+  - ```jsx
+    // const reducer = (state = [], action) => {
+    //   switch (action.type) {
+    //     case addTodo.type:
+    //       const addTodos = [{ text: action.payload, id: Date.now() }, ...state];
+    //       saveToLocalStorage(addTodos);
+    //       return addTodos;
+    //     case delTodo.type:
+    //       const delTodos = state.filter((s) => s.id !== action.payload);
+    //       saveToLocalStorage(delTodos);
+    //       return delTodos;
+    //     default:
+    //       return state;
+    //   }
+    // };
+
+    const reducer = createReducer([], {
+      // When the state is mutated, it shouldn't be returned.
+      // unshift doesn't return anything.
+      // Use `() => {}`, `not () => ` because the second one means "return the value."
+      [addTodo]: (state, action) => {
+        state.unshift({ text: action.payload, id: Date.now() });
+        saveToLocalStorage(state);
+      },
+      // When the state is not mutated, the new state should be returned.
+      // Use `() => ` or `() => { return }`.
+      [delTodo]: (state, action) => {
+        const newState = state.filter((s) => s.id !== action.payload);
+        saveToLocalStorage(newState);
+        return newState;
+      },
+    });
     ```
 
 ## Notes
