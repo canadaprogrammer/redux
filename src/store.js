@@ -1,5 +1,5 @@
 import { createStore } from 'redux';
-import { createAction, createReducer } from '@reduxjs/toolkit';
+import { createAction, createReducer, configureStore } from '@reduxjs/toolkit';
 
 const addTodo = createAction('ADD');
 const delTodo = createAction('DEL');
@@ -37,7 +37,8 @@ const loadFromLocalStorage = () => {
     return undefined;
   }
 };
-const store = createStore(reducer, loadFromLocalStorage());
+// const store = createStore(reducer, loadFromLocalStorage());
+const store = configureStore({ reducer, loadFromLocalStorage });
 
 export const actionsCreators = {
   addTodo,

@@ -777,6 +777,37 @@
     });
     ```
 
+### `configureStore()`
+
+- A friendly abstraction over the standard Redux `createStore` function that adds good defaults to the store setup for a better development experience.
+
+- `configureStore` accepts a single configuration object parameter, with the following options:
+
+  - `reducer`
+
+  - `middleware`: An optional array of Redux middleware functions
+
+  - `devTools`
+
+    - If this is boolean, it will be used to indicate whether supporting for the Redux DevTools browser extension. Defaults to `true`.
+
+    - If it's an object, the options object will be passed to `composeWithDevtools()`.
+
+  - `preloadedState`: An optional initial state value to be passed to the Redux `createStore` function.
+
+  - `enhancers`: An optional array of Redux store enhancers, or a callback function to customize the array of enhancers.
+
+- ```jsx
+  import {
+    createAction,
+    createReducer,
+    configureStore,
+  } from '@reduxjs/toolkit';
+
+  // const store = createStore(reducer, loadFromLocalStorage());
+  const store = configureStore({ reducer, loadFromLocalStorage });
+  ```
+
 ## Notes
 
 ### `Element.append()` vs `Node.appendChild()`
