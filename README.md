@@ -805,8 +805,81 @@
   } from '@reduxjs/toolkit';
 
   // const store = createStore(reducer, loadFromLocalStorage());
-  const store = configureStore({ reducer, loadFromLocalStorage });
+  const store = configureStore({
+    reducer,
+    preloadedState: loadFromLocalStorage(),
+  });
   ```
+
+### `createSlice()`
+
+- A function that accepts an initial state, an object of reducer functions, and a "slice name", and automatically generates action creators and action types that correspond to the reducers and state.
+
+- On `store.js`
+
+  - ```jsx
+    import {..., createSlice } from '@reduxjs/toolkit';
+
+    // const addTodo = createAction('ADD');
+    // const delTodo = createAction('DEL');
+
+    // const reducer = createReducer([], {
+    //   [addTodo]: (state, action) => {
+    //     state.unshift({ text: action.payload, id: Date.now() });
+    //     saveToLocalStorage(state);
+    //   },
+    //   [delTodo]: (state, action) => {
+    //     const newState = state.filter((s) => s.id !== action.payload);
+    //     saveToLocalStorage(newState);
+    //     return newState;
+    //   },
+    // });
+
+    const todoSlice = createSlice({
+      name: 'todoReducer',
+      initialState: [],
+      reducers: {
+        add: (state, action) => {
+          state.unshift({ text: action.payload, id: Date.now() });
+          saveToLocalStorage(state);
+        },
+        del: (state, action) => {
+          const newState = state.filter((s) => s.id !== action.payload);
+          saveToLocalStorage(newState);
+          return newState;
+        },
+      },
+    });
+
+    // const store = configureStore({
+    //   reducer,
+    //   preloadedState: loadFromLocalStorage(),
+    // });
+    const store = configureStore({
+      reducer: todoSlice.reducer,
+      preloadedState: loadFromLocalStorage(),
+    });
+
+    // export const actionsCreators = {
+    //   addTodo,
+    //   delTodo,
+    // };
+    export const { add, del } = todoSlice.actions;
+    ```
+
+- Change `actionsCreators` to `add` or `del` on `Home.js` and `Todo.js`
+
+  - ```jsx
+    // import { actionsCreators } from '../store';
+    import { add } from '../store';
+
+    function mapDispatchToProps(dispatch) {
+      return {
+        // addTodo: (text) => dispatch(actionsCreators.addTodo(text)),
+        addTodo: (text) => dispatch(add(text)),
+      };
+    }
+    ```
 
 ## Notes
 

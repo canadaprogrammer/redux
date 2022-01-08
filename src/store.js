@@ -1,8 +1,4 @@
-import { createStore } from 'redux';
-import { createAction, createReducer, configureStore } from '@reduxjs/toolkit';
-
-const addTodo = createAction('ADD');
-const delTodo = createAction('DEL');
+import { configureStore, createSlice } from '@reduxjs/toolkit';
 
 const saveToLocalStorage = (todos) => {
   try {
@@ -13,15 +9,19 @@ const saveToLocalStorage = (todos) => {
   }
 };
 
-const reducer = createReducer([], {
-  [addTodo]: (state, action) => {
-    state.unshift({ text: action.payload, id: Date.now() });
-    saveToLocalStorage(state);
-  },
-  [delTodo]: (state, action) => {
-    const newState = state.filter((s) => s.id !== action.payload);
-    saveToLocalStorage(newState);
-    return newState;
+const todoSlice = createSlice({
+  name: 'todoReducer',
+  initialState: [],
+  reducers: {
+    add: (state, action) => {
+      state.unshift({ text: action.payload, id: Date.now() });
+      saveToLocalStorage(state);
+    },
+    del: (state, action) => {
+      const newState = state.filter((s) => s.id !== action.payload);
+      saveToLocalStorage(newState);
+      return newState;
+    },
   },
 });
 
@@ -37,11 +37,11 @@ const loadFromLocalStorage = () => {
     return undefined;
   }
 };
-// const store = createStore(reducer, loadFromLocalStorage());
-const store = configureStore({ reducer, loadFromLocalStorage });
 
-export const actionsCreators = {
-  addTodo,
-  delTodo,
-};
+const store = configureStore({
+  reducer: todoSlice.reducer,
+  preloadedState: loadFromLocalStorage(),
+});
+
+export const { add, del } = todoSlice.actions;
 export default store;

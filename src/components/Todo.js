@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { actionsCreators } from '../store';
+import { del } from '../store';
 
 function Todo({ text, onClick, id }) {
   return (
@@ -23,7 +23,7 @@ function Todo({ text, onClick, id }) {
 
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    onClick: () => dispatch(actionsCreators.delTodo(ownProps.id)),
+    onClick: () => dispatch(del(ownProps.id)),
   };
 }
 export default connect(null, mapDispatchToProps)(Todo);
